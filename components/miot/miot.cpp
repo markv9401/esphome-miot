@@ -81,6 +81,8 @@ void Miot::setup() {
 void Miot::loop() {
   uint8_t c;
 
+  ESP_LOGD(TAG, "GECI");
+
   if (rx_count_ > 0 && millis() - last_rx_char_timestamp_ > RECEIVE_TIMEOUT) {
     rx_message_[rx_count_] = 0;
     ESP_LOGE(TAG, "Timeout while receiving from MCU, dropping message '%s'", rx_message_);
