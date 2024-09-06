@@ -81,13 +81,23 @@ void Miot::setup() {
 void Miot::loop() {
   uint8_t c;
 
-  ESP_LOGD(TAG, "GECI");
-
   if (rx_count_ > 0 && millis() - last_rx_char_timestamp_ > RECEIVE_TIMEOUT) {
     rx_message_[rx_count_] = 0;
     ESP_LOGE(TAG, "Timeout while receiving from MCU, dropping message '%s'", rx_message_);
     rx_count_ = 0;
   }
+
+///
+  if (command_queue_.empty()) {
+      send_reply_("down none");
+  } else {
+      const std::string &next_cmd = command_queue_.front();
+      expect_action_result_ = next_cmd.rfind("action ", 0, 7) == 0;
+      send_reply_((std::string("down ") + next_cmd).c_str());
+      command_queue_.pop();
+  }
+
+///
 
   while (this->available()) {
     if (!this->read_byte(&c))
